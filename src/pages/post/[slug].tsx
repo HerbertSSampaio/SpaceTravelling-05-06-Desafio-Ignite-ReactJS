@@ -33,9 +33,16 @@ interface Post {
 interface PostProps {
   post: Post;
   preview: boolean;
+  nextPost: string | null;
+  prevPost: string | null;
 }
 
-export default function Post({ post, preview }: PostProps): JSX.Element {
+export default function Post({
+  post,
+  preview,
+  nextPost,
+  prevPost,
+}: PostProps): JSX.Element {
   const router = useRouter();
   if (router.isFallback) {
     return <h1>Carregando...</h1>;
@@ -87,6 +94,30 @@ export default function Post({ post, preview }: PostProps): JSX.Element {
         })}
         <Comments />
       </article>
+      <hr />
+      <footer className={styles.othersPosts}>
+        {nextPost ? (
+          <div>
+            <h3>Como Utilizar hooks</h3>
+            <Link href={`/post/${nextPost}`}>
+              <a>Post Anterior</a>
+            </Link>
+          </div>
+        ) : (
+          <div />
+        )}
+        ;
+        {prevPost ? (
+          <div>
+            <h3>Como Utilizar hooks</h3>
+            <Link href={`/post/${prevPost}`}>
+              <a>Próximo post</a>
+            </Link>
+          </div>
+        ) : (
+          <div />
+        )}
+      </footer>
       {preview && (
         <aside>
           <Link href="/api/exit-preview">
@@ -128,6 +159,25 @@ export const getStaticProps: GetStaticProps = async ({
   const response = await prismic.getByUID('desafios', String(slug), {
     ref: previewData?.ref ?? null,
   });
+  const nextResponse = await prismic.query(
+    Prismic.Predicates.at('document.type', 'desafios'),
+    {
+      pageSize: 1,
+      after: response?.id,
+      orderings: '[document.first_publication_date desc]',
+    }
+  );
+  const prevResponse = await prismic.query(
+    Prismic.Predicates.at('document.type', 'desafios'),
+    {
+      pageSize: 1,
+      after: response?.id,
+      orderings: '[document.first_publication_date]',
+    }
+  );
+
+  const nextPost = nextResponse.results[0]?.uid || null;
+  const prevPost = prevResponse.results[0]?.uid || null;
 
   const post = {
     uid: response.uid,
@@ -152,6 +202,8 @@ export const getStaticProps: GetStaticProps = async ({
     props: {
       post,
       preview,
+      nextPost,
+      prevPost,
     },
     revalidate: 60 * 30,
   };

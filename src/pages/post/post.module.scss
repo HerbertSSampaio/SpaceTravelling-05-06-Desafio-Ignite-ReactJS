@@ -61,3 +61,32 @@
 
   }
 }
+
+.othersPosts {
+  display: flex;
+  justify-content: space-between;
+
+  div {
+    padding: 2rem;
+
+    h3{
+      font-size: 1rem;
+      color: var(--white);
+
+    }
+
+    > a {
+      display: block;
+      color: var(--pink);
+      font-weight: 600;
+      margin: 1rem 0;
+      background: none;
+      border: 0;
+      outline: 0;
+    }
+  }
+
+  div:nth-child(2) {
+    text-align: right;
+  }
+}
