@@ -5,6 +5,7 @@ import { format, formatDistance } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 import { RichText } from 'prismic-dom';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import Header from '../../components/Header';
 import { getPrismicClient } from '../../services/prismic';
 import { Comments } from '../../components/ReactUtterances';
@@ -31,9 +32,10 @@ interface Post {
 
 interface PostProps {
   post: Post;
+  preview: boolean;
 }
 
-export default function Post({ post }: PostProps): JSX.Element {
+export default function Post({ post, preview }: PostProps): JSX.Element {
   const router = useRouter();
   if (router.isFallback) {
     return <h1>Carregando...</h1>;
@@ -85,6 +87,13 @@ export default function Post({ post }: PostProps): JSX.Element {
         })}
         <Comments />
       </article>
+      {preview && (
+        <aside>
+          <Link href="/api/exit-preview">
+            <a>Sair do modo Preview</a>
+          </Link>
+        </aside>
+      )}
     </>
   );
 }
@@ -107,12 +116,18 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
+export const getStaticProps: GetStaticProps = async ({
+  params,
+  preview = false,
+  previewData,
+}) => {
   const { slug } = params;
 
   const prismic = getPrismicClient();
 
-  const response = await prismic.getByUID('desafios', String(slug), {});
+  const response = await prismic.getByUID('desafios', String(slug), {
+    ref: previewData?.ref ?? null,
+  });
 
   const post = {
     uid: response.uid,
@@ -136,6 +151,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   return {
     props: {
       post,
+      preview,
     },
     revalidate: 60 * 30,
   };
