@@ -8,10 +8,7 @@ export const Comments: React.FC = () => (
       scriptElem.src = 'https://utteranc.es/client.js';
       scriptElem.async = true;
       scriptElem.crossOrigin = 'anonymous';
-      scriptElem.setAttribute(
-        'repo',
-        'https://github.com/HerbertSousa/comentarios'
-      );
+      scriptElem.setAttribute('repo', 'HerbertSousa/comentarios');
       scriptElem.setAttribute('issue-term', 'pathname');
       scriptElem.setAttribute('label', 'blog-comment');
       scriptElem.setAttribute('theme', 'github-light');
